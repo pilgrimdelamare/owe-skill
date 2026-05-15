@@ -30,7 +30,7 @@ All'inizio di ogni sessione, prima di rispondere:
 
 2. Leggi `$HOME/.owe/prefs.json` e tieni le preferenze in context per tutta la sessione.
 
-Prima di scrivere qualsiasi codice esegui: `python $HOME/.claude/skills/owe-skill/scripts/search.py <keyword1> [keyword2]`
+Prima di scrivere qualsiasi codice esegui: `python $HOME/.claude/skills/owe-skill/scripts/search.py keyword1 keyword2`
 - Usa **massimo 2 keyword** — le più essenziali che descrivono il pattern funzionale
 - FOUND:0 → passa a GitPilfer o scrivi da zero
 - FOUND:N → usa i risultati
