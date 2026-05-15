@@ -1,3 +1,8 @@
+---
+name: owe-skill
+description: Prima di ogni task, cerca nel database locale di codice testato e conoscenza acquisita. Carica le preferenze utente in context. Attiva automaticamente in ogni progetto.
+---
+
 # OWE — Istruzioni per l'Agente
 
 ## Avvio sessione

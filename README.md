@@ -1,6 +1,6 @@
 # OWE — Once Was Enough
 
-> A local knowledge and code cache for AI agents. What the agent learns once, it remembers forever.
+> A local knowledge and code cache for AI coding agents. What the agent learns once, it remembers forever.
 
 **English** | [Italiano](#italiano)
 
@@ -10,19 +10,19 @@
 
 OWE is a global skill for AI coding agents (Claude Code, Windsurf, and others) that builds and queries a local database of:
 
-- **Tested code** — functions and components already written and confirmed working, indexed by name and docstring
-- **Acquired knowledge** — API quirks, dead ends, unexpected service behaviors, organized by domain
+- **Tested code** — functions and components already confirmed working, indexed by name and docstring
+- **Acquired knowledge** — API quirks, dead ends, unexpected behaviors, organized by domain
 - **User preferences** — how you want the agent to behave, loaded into context on every session
 
-The goal: reduce repeated token usage and repeated mistakes across sessions and across agents.
+The agent consults the database automatically before writing any code. You do nothing manually.
 
 ## How it works
 
-Before writing any code, the agent runs a zero-token search against the local index. If something useful is found, it reuses it. If not, it falls through to GitHub search (GitPilfer) or writes from scratch.
+```
+Task → OWE search (automatic) → GitPilfer → Write from scratch
+```
 
-```
-Task → OWE search → GitPilfer → Write from scratch
-```
+Before writing any code, the agent searches the local index at zero token cost. If something useful exists, it reuses it. If not, it falls through to GitHub search or writes from scratch.
 
 The database grows over time. The more sessions it accumulates, the more efficient the agent becomes.
 
@@ -30,43 +30,48 @@ The database grows over time. The more sessions it accumulates, the more efficie
 
 - **Language:** Python 3 (stdlib only, zero external dependencies)
 - **Storage:** JSON (`~/.owe/`)
-- **Shell:** bash
 - **Compatible with:** Unix, Windows (Git Bash / WSL)
 
 ## Installation
 
 ```bash
 # 1. Clone the repo
-git clone https://github.com/YOUR_USERNAME/owe
-cd owe
+git clone https://github.com/pilgrimdelamare/owe-skill
+cd owe-skill
 
-# 2. Run initial census (one-time setup)
-python owe/scripts/census.py
+# 2. Copy scripts to their permanent location
+cp -r owe/scripts ~/.owe/scripts
+
+# 3. Copy the skill to Claude Code
+mkdir -p ~/.claude/skills/owe-skill
+cp owe/SKILL.md ~/.claude/skills/owe-skill/SKILL.md
+
+# 4. Run initial census
+python ~/.owe/scripts/census.py
 ```
 
-You will be prompted to select which folders to scan and which file extensions to include (default: `.py`, `.js`, `.ts`).
+That's it. Claude Code picks up the skill automatically from the next session.
 
-**Accepted path aliases:** `desktop`, `documents`, `downloads`, `home`
+**Accepted path aliases during census:** `desktop`, `documents`, `downloads`, `home`
 
-The database lives at `~/.owe/` — hidden, local, portable.
+## What the agent does automatically
 
-## Agent setup
+Once installed, on every session the agent:
 
-Add the following to your agent's system prompt or CLAUDE.md:
+1. Loads `~/.owe/prefs.json` into context
+2. Before each task, searches the local index for relevant code and knowledge
+3. Reuses what it finds, or falls through to the next level
+4. After confirmed steps, proposes saving new components to the database
 
-1. Load `~/.owe/prefs.json` into context at session start
-2. Before any task, run: `python owe/scripts/search.py <keywords>`
-3. If `FOUND:0` → proceed to next level; if `FOUND:N` → use the results
-
-See [`owe/SKILL.md`](owe/SKILL.md) for complete agent instructions.
+You never run search commands manually.
 
 ## Scripts
 
 | Script | Purpose |
 |---|---|
-| `owe/scripts/census.py` | Initial scan + component management |
-| `owe/scripts/search.py` | Search the index (zero agent tokens) |
-| `owe/scripts/verify.py` | Check stale paths and outdated knowledge |
+| `~/.owe/scripts/census.py` | Initial scan + component management |
+| `~/.owe/scripts/search.py` | Search the index (zero agent tokens) |
+| `~/.owe/scripts/verify.py` | Check stale paths and outdated knowledge |
 
 ## Slash commands
 
@@ -75,7 +80,7 @@ See [`owe/SKILL.md`](owe/SKILL.md) for complete agent instructions.
 | `/owe-sync` | Re-scan configured folders |
 | `/owe-setup` | Reconfigure folders and extensions |
 | `/owe-status` | Dashboard: components, domains, preferences, stale entries |
-| `/owe-pref` | Add a user preference manually |
+| `/owe-pref` | Add a user preference |
 | `/owe-autosync-on` | Auto-add new components without confirmation |
 | `/owe-autosync-off` | Revert to asking before adding |
 | `/owe-export` | Copy `~/.owe/` to Desktop as a zip archive |
@@ -87,7 +92,7 @@ See [`owe/SKILL.md`](owe/SKILL.md) for complete agent instructions.
 ~/.owe/
 ├── index.json          # Global index (code + knowledge + config)
 ├── prefs.json          # User preferences (always loaded)
-├── code/               # Reserved for component detail files
+├── scripts/            # OWE scripts (installed here)
 └── knowledge/
     └── <domain>/
         └── notes.json  # Notes per domain (redis, firebase, etc.)
@@ -95,22 +100,22 @@ See [`owe/SKILL.md`](owe/SKILL.md) for complete agent instructions.
 
 ## Portability
 
-No remote repository is used to avoid exposing secrets or sensitive data.
+The database lives at `~/.owe/` — local, hidden, no remote sync.
 
 - `/owe-export` → zips `~/.owe/` to the Desktop
 - `/owe-import` → loads the archive from the Desktop
-- Transfer via USB drive or any manual method
+- Transfer via USB or any manual method
 
 ## Multi-agent
 
-OWE is agent-agnostic. It works the same on Claude Code, Windsurf, or any other agent on the same machine. When an agent finds new unregistered components (written by another agent or by the user), it proposes adding them. With `autosync: true`, this happens automatically.
+OWE is agent-agnostic. It works the same on Claude Code, Windsurf, or any agent on the same machine. When an agent finds new unregistered components, it proposes adding them. With `autosync: true`, this happens silently.
 
 ## Rules
 
-- Components are added only with user confirmation (unless `autosync: true`)
-- Knowledge notes are **never** added without confirmation
-- User preferences are **never** added without confirmation
-- Stale knowledge (configurable threshold, default 30 days) is flagged but not ignored
+- Components: added with user confirmation (silent if `autosync: true`)
+- Knowledge notes: **never** added without confirmation
+- User preferences: **never** added without confirmation
+- Stale entries (default threshold: 30 days) are flagged, not ignored
 
 ---
 
@@ -118,44 +123,49 @@ OWE is agent-agnostic. It works the same on Claude Code, Windsurf, or any other 
 
 OWE è una skill globale per agenti AI (Claude Code, Windsurf e altri) che costruisce e consulta un database locale di:
 
-- **Codice testato** — funzioni e componenti già scritti e confermati funzionanti, indicizzati per nome e docstring
-- **Conoscenza acquisita** — quirk di API, vicoli ciechi, comportamenti inattesi di servizi esterni, organizzati per dominio
+- **Codice testato** — funzioni e componenti già confermati funzionanti, indicizzati per nome e docstring
+- **Conoscenza acquisita** — quirk di API, vicoli ciechi, comportamenti inattesi, organizzati per dominio
 - **Preferenze utente** — come vuoi che l'agente si comporti, caricate in context ad ogni sessione
 
-### Obiettivo
-
-Ridurre token ripetuti ed errori ripetuti nel tempo e tra agenti diversi. Il database cresce con le sessioni: più accumula, più l'agente diventa efficiente.
+L'agente consulta il database automaticamente prima di scrivere qualsiasi codice. L'utente non fa nulla manualmente.
 
 ### Come funziona
 
-Prima di scrivere qualsiasi codice, l'agente lancia una ricerca zero-token sull'indice locale. Se trova qualcosa di utile, lo riusa. Se non trova niente, passa al livello successivo (ricerca su GitHub o scrittura da zero).
+```
+Task → Ricerca OWE (automatica) → GitPilfer → Scrivi da zero
+```
+
+Prima di scrivere qualsiasi codice, l'agente cerca nell'indice locale a costo zero di token. Se trova qualcosa di utile lo riusa, altrimenti passa al livello successivo.
 
 ### Installazione
 
 ```bash
-git clone https://github.com/YOUR_USERNAME/owe
-cd owe
-python owe/scripts/census.py
+git clone https://github.com/pilgrimdelamare/owe-skill
+cd owe-skill
+cp -r owe/scripts ~/.owe/scripts
+mkdir -p ~/.claude/skills/owe-skill
+cp owe/SKILL.md ~/.claude/skills/owe-skill/SKILL.md
+python ~/.owe/scripts/census.py
 ```
 
-Al primo avvio viene chiesto quali cartelle scansionare e quali estensioni includere.
-**Alias accettati:** `desktop`, `documents`, `downloads`, `home`
+Da quel momento Claude Code carica la skill automaticamente ad ogni sessione.
 
-Il database vive in `~/.owe/` — nascosto, locale, portabile.
+**Alias accettati durante il censimento:** `desktop`, `documents`, `downloads`, `home`
 
-### Configurazione agente
+### Cosa fa l'agente automaticamente
 
-Aggiungi al system prompt o al CLAUDE.md del tuo agente:
+Una volta installata, ad ogni sessione l'agente:
 
-1. Carica `~/.owe/prefs.json` in context all'avvio
-2. Prima di ogni task, lancia: `python owe/scripts/search.py <keyword>`
-3. Se `FOUND:0` → passa al livello successivo; se `FOUND:N` → usa i risultati
+1. Carica `~/.owe/prefs.json` in context
+2. Prima di ogni task, cerca nell'indice locale codice e conoscenza rilevanti
+3. Riusa quello che trova, o passa al livello successivo
+4. Dopo step confermati, propone di salvare nuovi componenti nel database
 
-Vedi [`owe/SKILL.md`](owe/SKILL.md) per le istruzioni complete per l'agente.
+Non lanci mai comandi di ricerca manualmente.
 
 ### Regole
 
-- I componenti si aggiungono solo con conferma utente (salvo `autosync: true`)
-- Le note di conoscenza non si aggiungono mai senza conferma
-- Le preferenze non si aggiungono mai senza conferma
-- La conoscenza stale (soglia configurabile, default 30 giorni) viene segnalata ma non ignorata
+- Componenti: aggiunti con conferma utente (silenzioso se `autosync: true`)
+- Note di conoscenza: **mai** aggiunte senza conferma
+- Preferenze utente: **mai** aggiunte senza conferma
+- Entry stale (soglia configurabile, default 30 giorni): segnalate, non ignorate
