@@ -34,11 +34,39 @@ The database grows over time. The more sessions it accumulates, the more efficie
 
 ## Installation
 
-Just tell your agent:
+### Claude Code
 
-> **"Install OWE from https://github.com/pilgrimdelamare/owe-skill"**
+```bash
+git clone https://github.com/pilgrimdelamare/owe-skill.git
+cp -r owe-skill/owe-skill ~/.claude/skills/
+```
 
-The agent handles everything: cloning, copying scripts, registering the skill, and running the initial census. From the next session, OWE is active automatically.
+OWE activates automatically in every Claude Code session on any project.
+
+### Windsurf — global (all projects)
+
+```bash
+git clone https://github.com/pilgrimdelamare/owe-skill.git
+```
+
+Open **Settings → Cascade → Global Rules** and paste the contents of `owe-skill/owe-skill/SKILL.md`.
+
+### Windsurf — single project
+
+```bash
+git clone https://github.com/pilgrimdelamare/owe-skill.git
+cat owe-skill/owe-skill/SKILL.md > /path/to/your-project/.windsurfrules
+```
+
+### First run
+
+After installing, run the initial census once:
+
+```bash
+python ~/.claude/skills/owe-skill/scripts/census.py
+```
+
+It will ask which folders to scan. From that point on, OWE manages everything automatically.
 
 ## What the agent does automatically
 
@@ -145,11 +173,39 @@ Il database cresce nel tempo. Più sessioni accumula, più l'agente diventa effi
 
 ## Installazione
 
-Di' al tuo agente:
+### Claude Code
 
-> **"Installa OWE da https://github.com/pilgrimdelamare/owe-skill"**
+```bash
+git clone https://github.com/pilgrimdelamare/owe-skill.git
+cp -r owe-skill/owe-skill ~/.claude/skills/
+```
 
-L'agente gestisce tutto: clona la repo, copia gli script, registra la skill e avvia il censimento iniziale. Dalla sessione successiva OWE è attivo automaticamente.
+OWE si attiva automaticamente in ogni sessione di Claude Code su qualsiasi progetto.
+
+### Windsurf — globale (tutti i progetti)
+
+```bash
+git clone https://github.com/pilgrimdelamare/owe-skill.git
+```
+
+Apri **Settings → Cascade → Global Rules** e incolla il contenuto di `owe-skill/owe-skill/SKILL.md`.
+
+### Windsurf — singolo progetto
+
+```bash
+git clone https://github.com/pilgrimdelamare/owe-skill.git
+cat owe-skill/owe-skill/SKILL.md > /percorso/tuo-progetto/.windsurfrules
+```
+
+### Primo avvio
+
+Dopo l'installazione, esegui il censimento iniziale una volta sola:
+
+```bash
+python ~/.claude/skills/owe-skill/scripts/census.py
+```
+
+Chiederà quali cartelle scansionare. Da quel momento OWE gestisce tutto automaticamente.
 
 ## Cosa fa l'agente automaticamente
 

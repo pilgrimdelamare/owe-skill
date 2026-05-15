@@ -5,45 +5,15 @@ description: Prima di ogni task, cerca nel database locale di codice testato e c
 
 # OWE — Istruzioni per l'Agente
 
-## Installazione
-
-Quando l'utente chiede di installare OWE:
-
-1. Clona la repo:
-   ```bash
-   git clone https://github.com/pilgrimdelamare/owe-skill ~/owe-skill-tmp
-   ```
-2. Copia gli script nella posizione permanente:
-   ```bash
-   mkdir -p ~/.owe/scripts ~/.owe/code ~/.owe/knowledge
-   cp ~/owe-skill-tmp/owe/scripts/*.py ~/.owe/scripts/
-   ```
-3. Registra la skill:
-   ```bash
-   mkdir -p ~/.claude/skills/owe-skill
-   cp ~/owe-skill-tmp/owe/SKILL.md ~/.claude/skills/owe-skill/SKILL.md
-   ```
-4. Crea il database se non esiste (`~/.owe/index.json` e `~/.owe/prefs.json`):
-   ```bash
-   python ~/.owe/scripts/census.py
-   ```
-5. Rimuovi la cartella temporanea:
-   ```bash
-   rm -rf ~/owe-skill-tmp
-   ```
-6. Comunica all'utente che OWE è installato e attivo dalla prossima sessione.
-
----
-
 ## Avvio sessione
 
 1. Leggi `~/.owe/prefs.json` → carica le preferenze utente in context
-2. Se `~/.owe/index.json` non esiste → esegui `python owe/scripts/census.py` per il setup iniziale
+2. Se `~/.owe/index.json` non esiste → esegui `python ~/.claude/skills/owe-skill/scripts/census.py` per il setup iniziale
 
 ## Per ogni task
 
 1. Estrai 2-5 keyword rilevanti dal task
-2. Esegui: `python owe/scripts/search.py <keyword1> [keyword2] ...`
+2. Esegui: `python ~/.claude/skills/owe-skill/scripts/search.py <keyword1> [keyword2] ...`
 3. Leggi la prima riga dell'output:
    - `FOUND:0` → nessun risultato → passa al livello 2 (GitPilfer) o scrivi da zero
    - `FOUND:N` → N > 0 → leggi i risultati e usa i componenti/knowledge pertinenti
@@ -65,7 +35,7 @@ Quando l'utente conferma che uno step è completato e il codice funziona:
 1. Chiedi: "Vuoi salvare `<nome_funzione>` in OWE?"
 2. Se sì, esegui:
    ```
-   python owe/scripts/census.py --add <path_assoluto> <nome> <linea> "<docstring>"
+   python ~/.claude/skills/owe-skill/scripts/census.py --add <path_assoluto> <nome> <linea> "<docstring>"
    ```
 
 Oppure aggiungi direttamente in `~/.owe/index.json` → `code.components`:
@@ -128,10 +98,11 @@ Se usi una nota di knowledge e funziona ancora, aggiorna il campo `verified` con
 
 | Comando | Azione |
 |---|---|
-| `/owe-autosync-on` | `python owe/scripts/census.py --autosync-on` |
-| `/owe-autosync-off` | `python owe/scripts/census.py --autosync-off` |
-| `/owe-sync` | `python owe/scripts/census.py` |
-| `/owe-status` | `python owe/scripts/verify.py --status` |
+| `/owe-autosync-on` | `python ~/.claude/skills/owe-skill/scripts/census.py --autosync-on` |
+| `/owe-autosync-off` | `python ~/.claude/skills/owe-skill/scripts/census.py --autosync-off` |
+| `/owe-sync` | `python ~/.claude/skills/owe-skill/scripts/census.py` |
+| `/owe-setup` | `python ~/.claude/skills/owe-skill/scripts/census.py --setup` |
+| `/owe-status` | `python ~/.claude/skills/owe-skill/scripts/verify.py --status` |
 | `/owe-pref` | Chiedi la preferenza → aggiungi a `~/.owe/prefs.json` (con conferma) |
 | `/owe-export` | Zip `~/.owe/` → Desktop come `owe-backup-<YYYY-MM-DD>.zip` |
 | `/owe-import` | Chiedi file → decomprimi in `~/.owe/` (con conferma, sovrascrive) |
