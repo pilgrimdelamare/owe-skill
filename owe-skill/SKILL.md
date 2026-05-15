@@ -33,6 +33,17 @@ All'inizio di ogni sessione, prima di rispondere:
 Prima di scrivere qualsiasi codice esegui: `python ~/.claude/skills/owe-skill/scripts/search.py <keywords>`
 - FOUND:0 → passa a GitPilfer o scrivi da zero
 - FOUND:N → usa i risultati
+
+**Le keyword devono descrivere il pattern funzionale, non la tecnologia specifica del task.**
+Cerca quello che il codice FA, non con cosa è fatto.
+
+| Invece di | Cerca |
+|---|---|
+| `redis` `firebase` `mongo` | `cache` `store` `persist` |
+| `stripe` `paypal` `braintree` | `payment` `checkout` `billing` |
+| `jwt` `oauth` `clerk` | `auth` `token` `session` |
+| `sendgrid` `mailgun` `ses` | `email` `notify` `send` |
+| `s3` `cloudinary` `gcs` | `upload` `storage` `file` |
 OWEEOF
 ```
 
