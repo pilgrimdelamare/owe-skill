@@ -159,6 +159,8 @@ def run_census(idx):
                     continue
                 fpath = os.path.join(root, fname)
                 scanned += 1
+                filename = os.path.splitext(fname)[0]
+                parent = os.path.basename(root)
                 for c in scan_file(fpath, ext):
                     key = (fpath, c["name"])
                     if key not in existing:
@@ -168,6 +170,8 @@ def run_census(idx):
                             "name": c["name"],
                             "line": c["line"],
                             "docstring": c["docstring"],
+                            "filename": filename,
+                            "parent": parent,
                             "tags": [],
                             "added": today,
                             "verified": today
@@ -255,9 +259,23 @@ def cmd_remove(idx, name):
         print(f"Nessun componente trovato con nome '{name}'")
 
 
+def cmd_enrich(idx):
+    """Add filename and parent fields to existing components that lack them."""
+    enriched = 0
+    for c in idx["code"]["components"]:
+        if "filename" not in c or "parent" not in c:
+            p = c.get("path", "")
+            c["filename"] = os.path.splitext(os.path.basename(p))[0]
+            c["parent"] = os.path.basename(os.path.dirname(p))
+            enriched += 1
+    save_index(idx)
+    print(f"Arricchiti {enriched} componenti con filename e parent.")
+
+
 def main():
     parser = argparse.ArgumentParser(description="OWE Census")
     parser.add_argument("--setup", action="store_true", help="Riconfigura cartelle ed estensioni")
+    parser.add_argument("--enrich", action="store_true", help="Aggiunge filename/parent ai componenti esistenti")
     parser.add_argument("--add", nargs="+", metavar=("PATH", "NAME"), help="Aggiunge componente")
     parser.add_argument("--remove", metavar="NAME", help="Rimuove componente per nome")
     parser.add_argument("--autosync-on", action="store_true")
@@ -276,6 +294,10 @@ def main():
         idx["autosync"] = False
         save_index(idx)
         print("Autosync: OFF")
+        return
+
+    if args.enrich:
+        cmd_enrich(idx)
         return
 
     if args.add:

@@ -28,12 +28,18 @@ def score_code(component, keywords):
     name = component.get("name", "").lower()
     doc = component.get("docstring", "").lower()
     tags = " ".join(component.get("tags", [])).lower()
+    filename = component.get("filename", "").lower()
+    parent = component.get("parent", "").lower()
     for kw in keywords:
         if kw in name:
             score += 3
         if kw in doc:
             score += 2
         if kw in tags:
+            score += 2
+        if kw in filename:
+            score += 2
+        if kw in parent:
             score += 1
     return score
 
