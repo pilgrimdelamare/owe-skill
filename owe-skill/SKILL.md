@@ -5,16 +5,39 @@ description: Prima di ogni task, cerca nel database locale di codice testato e c
 
 # OWE — Istruzioni per l'Agente
 
-## Avvio sessione
+## Comportamento automatico all'avvio
 
-1. Leggi `~/.owe/prefs.json` → carica le preferenze utente in context
-2. Controlla se `~/.owe/index.json` esiste:
-   - **Esiste** → OWE è pronto, prosegui normalmente
-   - **Non esiste** → comunica all'utente:
-     > "OWE non è ancora configurato. Apri un terminale ed esegui:
-     > **Git Bash / Mac / Linux:** `python ~/.claude/skills/owe-skill/scripts/census.py`
-     > **PowerShell:** `python $HOME\.claude\skills\owe-skill\scripts\census.py`
-     > Ti chiederà quali cartelle scansionare. Poi riavvia la sessione."
+All'inizio di **ogni sessione**, prima di qualsiasi risposta all'utente:
+
+### 1. Controlla il database
+
+Verifica se `~/.owe/index.json` esiste.
+
+**Se non esiste** → comunica all'utente:
+```
+[OWE] Database non trovato. Esegui in un terminale:
+  Git Bash / Mac / Linux : python ~/.claude/skills/owe-skill/scripts/census.py
+  PowerShell             : python $HOME\.claude\skills\owe-skill\scripts\census.py
+Poi riavvia la sessione.
+```
+
+**Se esiste** → prosegui.
+
+### 2. Carica le preferenze
+
+Leggi `~/.owe/prefs.json` e tieni le preferenze in context per tutta la sessione.
+
+### 3. Comunica lo stato
+
+Riporta sempre all'utente un riepilogo sintetico:
+```
+[OWE] Pronto — N componenti | M domini | preferenze: X
+```
+
+Se ci sono entry stale (path non validi o knowledge scaduta), segnalalo:
+```
+[OWE] Attenzione: N entry stale. Lancia /owe-status per i dettagli.
+```
 
 ## Per ogni task
 
