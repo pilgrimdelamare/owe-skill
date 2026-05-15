@@ -17,7 +17,33 @@ INDEX_PATH = OWE_DIR / "index.json"
 CODE_DIR = OWE_DIR / "code"
 KNOWLEDGE_DIR = OWE_DIR / "knowledge"
 DEFAULT_EXTENSIONS = [".py", ".js", ".ts"]
-SKIP_DIRS = {"node_modules", "__pycache__", ".git", "venv", ".venv", "dist", "build", ".next", ".nuxt"}
+SKIP_DIRS = {
+    # dipendenze e build
+    "node_modules", "__pycache__", ".git", "venv", ".venv",
+    "dist", "build", ".next", ".nuxt", ".output", ".cache",
+    "vendor", "bower_components", ".turbo", ".vercel",
+    # browser / Chrome
+    "Default", "Guest Profile", "System Profile",
+    "chrome_extensions", "Extensions", "Temp",
+    # sistema Windows
+    "$RECYCLE.BIN", "System Volume Information",
+    "AppData", "ProgramData",
+}
+
+# Pattern per cartelle non-progetto (es. ID estensioni Chrome: 32 char alfanumerici lowercase)
+SKIP_PATTERNS = [
+    re.compile(r'^[a-z0-9]{32}$'),        # Chrome extension IDs
+    re.compile(r'^[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}$'),  # UUID
+]
+
+
+def should_skip(dirname):
+    if dirname in SKIP_DIRS or dirname.startswith("."):
+        return True
+    for pattern in SKIP_PATTERNS:
+        if pattern.match(dirname):
+            return True
+    return False
 
 
 def init_index():
@@ -152,7 +178,7 @@ def run_census(idx):
             print(f"  Aggiornato a: {base}")
         updated_paths.append(stored_path)
         for root, dirs, files in os.walk(base):
-            dirs[:] = [d for d in dirs if not d.startswith(".") and d not in SKIP_DIRS]
+            dirs[:] = [d for d in dirs if not should_skip(d)]
             for fname in files:
                 _, ext = os.path.splitext(fname)
                 if ext not in extensions:
