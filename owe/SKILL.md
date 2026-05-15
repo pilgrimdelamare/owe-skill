@@ -5,6 +5,36 @@ description: Prima di ogni task, cerca nel database locale di codice testato e c
 
 # OWE — Istruzioni per l'Agente
 
+## Installazione
+
+Quando l'utente chiede di installare OWE:
+
+1. Clona la repo:
+   ```bash
+   git clone https://github.com/pilgrimdelamare/owe-skill ~/owe-skill-tmp
+   ```
+2. Copia gli script nella posizione permanente:
+   ```bash
+   mkdir -p ~/.owe/scripts ~/.owe/code ~/.owe/knowledge
+   cp ~/owe-skill-tmp/owe/scripts/*.py ~/.owe/scripts/
+   ```
+3. Registra la skill:
+   ```bash
+   mkdir -p ~/.claude/skills/owe-skill
+   cp ~/owe-skill-tmp/owe/SKILL.md ~/.claude/skills/owe-skill/SKILL.md
+   ```
+4. Crea il database se non esiste (`~/.owe/index.json` e `~/.owe/prefs.json`):
+   ```bash
+   python ~/.owe/scripts/census.py
+   ```
+5. Rimuovi la cartella temporanea:
+   ```bash
+   rm -rf ~/owe-skill-tmp
+   ```
+6. Comunica all'utente che OWE è installato e attivo dalla prossima sessione.
+
+---
+
 ## Avvio sessione
 
 1. Leggi `~/.owe/prefs.json` → carica le preferenze utente in context

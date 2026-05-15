@@ -34,23 +34,11 @@ The database grows over time. The more sessions it accumulates, the more efficie
 
 ## Installation
 
-```bash
-# 1. Clone the repo
-git clone https://github.com/pilgrimdelamare/owe-skill
-cd owe-skill
+Just tell your agent:
 
-# 2. Copy scripts to their permanent location
-cp -r owe/scripts ~/.owe/scripts
+> **"Install OWE from https://github.com/pilgrimdelamare/owe-skill"**
 
-# 3. Copy the skill to Claude Code
-mkdir -p ~/.claude/skills/owe-skill
-cp owe/SKILL.md ~/.claude/skills/owe-skill/SKILL.md
-
-# 4. Run initial census
-python ~/.owe/scripts/census.py
-```
-
-That's it. Claude Code picks up the skill automatically from the next session.
+The agent handles everything: cloning, copying scripts, registering the skill, and running the initial census. From the next session, OWE is active automatically.
 
 ## What the agent does automatically
 
@@ -157,23 +145,11 @@ Il database cresce nel tempo. Più sessioni accumula, più l'agente diventa effi
 
 ## Installazione
 
-```bash
-# 1. Clona la repo
-git clone https://github.com/pilgrimdelamare/owe-skill
-cd owe-skill
+Di' al tuo agente:
 
-# 2. Copia gli script nella loro posizione permanente
-cp -r owe/scripts ~/.owe/scripts
+> **"Installa OWE da https://github.com/pilgrimdelamare/owe-skill"**
 
-# 3. Copia la skill in Claude Code
-mkdir -p ~/.claude/skills/owe-skill
-cp owe/SKILL.md ~/.claude/skills/owe-skill/SKILL.md
-
-# 4. Avvia il censimento iniziale
-python ~/.owe/scripts/census.py
-```
-
-Fatto. Claude Code carica la skill automaticamente dalla sessione successiva.
+L'agente gestisce tutto: clona la repo, copia gli script, registra la skill e avvia il censimento iniziale. Dalla sessione successiva OWE è attivo automaticamente.
 
 ## Cosa fa l'agente automaticamente
 
