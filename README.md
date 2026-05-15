@@ -52,11 +52,13 @@ python ~/.owe/scripts/census.py
 
 That's it. Claude Code picks up the skill automatically from the next session.
 
-**Accepted path aliases during census:** `desktop`, `documents`, `downloads`, `home`
-
 ## What the agent does automatically
 
-Once installed, on every session the agent:
+**First launch:** if no database exists yet, the agent runs the initial census. It asks which folders to scan and which file extensions to include (default: `.py`, `.js`, `.ts`), then indexes all functions and components it finds.
+
+Accepted path aliases: `desktop`, `documents`, `downloads`, `home` — these resolve to the correct path on any machine regardless of username.
+
+**Every session after that:**
 
 1. Loads `~/.owe/prefs.json` into context
 2. Before each task, searches the local index for relevant code and knowledge
@@ -173,11 +175,13 @@ python ~/.owe/scripts/census.py
 
 Fatto. Claude Code carica la skill automaticamente dalla sessione successiva.
 
-**Alias accettati durante il censimento:** `desktop`, `documents`, `downloads`, `home`
-
 ## Cosa fa l'agente automaticamente
 
-Una volta installata, ad ogni sessione l'agente:
+**Al primo avvio:** se non esiste ancora un database, l'agente avvia il censimento iniziale. Chiede quali cartelle scansionare e quali estensioni includere (default: `.py`, `.js`, `.ts`), poi indicizza tutte le funzioni e i componenti trovati.
+
+Alias accettati: `desktop`, `documents`, `downloads`, `home` — si risolvono al percorso corretto su qualsiasi macchina, indipendentemente dal nome utente.
+
+**Da ogni sessione successiva:**
 
 1. Carica `~/.owe/prefs.json` in context
 2. Prima di ogni task, cerca nell'indice locale codice e conoscenza rilevanti
