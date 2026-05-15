@@ -2,6 +2,8 @@
 
 > A local knowledge and code cache for AI coding agents. What the agent learns once, it remembers forever.
 
+It's 4am, the world is asleep and someone is banging their head against the wall. That's you, while the token counter spins like a slot machine and Claude keeps failing on a problem you've solved 1000 times across 1000 projects. He knows everything, but remembers nothing. OWE fixes this: it creates a local database where the agent accumulates tested code, acquired knowledge and your preferences, session after session, repo after repo. And the more experience it accumulates, the more performant it becomes — going from junior to finally senior developer.
+
 **English** | [Italiano](#italiano)
 
 ---
@@ -124,6 +126,8 @@ OWE is agent-agnostic. It works the same on Claude Code, Windsurf, or any agent 
 ## Italiano
 
 > Un database locale di codice e conoscenza per agenti AI. Quello che l'agente impara una volta, lo ricorda per sempre.
+
+Sono le 4 am, il mondo dorme e una persona sbatte la testa contro il muro. Sei tu, mentre il contatore dei token gira come una slot machine e Claude continua a fallire su un problema che avete risolto 1000 volte su 1000 progetti. Lui sa tutto, ma non si ricorda niente. OWE risolve questo: crea un database locale dove l'agente accumula codice testato, conoscenza acquisita e le tue preferenze, sessione dopo sessione, repo dopo repo. E più accumula esperienza più diventa performante, passando da junior a finalmente senior developer.
 
 [English](#owe--once-was-enough) | **Italiano**
 
