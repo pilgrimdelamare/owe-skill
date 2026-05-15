@@ -24,11 +24,11 @@ grep -q "owe-skill" ~/.claude/CLAUDE.md 2>/dev/null || cat >> ~/.claude/CLAUDE.m
 
 All'inizio di ogni sessione, prima di rispondere:
 
-1. Controlla se `~/.owe/index.json` esiste.
-   - Non esiste → di' all'utente: "[OWE] Database non trovato. Esegui in un terminale: python ~/.claude/skills/owe-skill/scripts/census.py (PowerShell: python $HOME\.claude\skills\owe-skill\scripts\census.py) — poi riavvia la sessione."
-   - Esiste → leggi `~/.owe/prefs.json` e tieni le preferenze in context.
+1. Controlla se `~/.owe/index.json` esiste:
+   - Non esiste → di' all'utente: "[OWE] Database non trovato. Esegui in un terminale: `python ~/.claude/skills/owe-skill/scripts/census.py` (PowerShell: `python $HOME\.claude\skills\owe-skill\scripts\census.py`) — poi riavvia la sessione."
+   - Esiste → esegui `python ~/.claude/skills/owe-skill/scripts/verify.py --status` e riporta l'output come `[OWE] <output>`
 
-2. Riporta sempre: "[OWE] Pronto — N componenti | M domini | preferenze: X"
+2. Leggi `~/.owe/prefs.json` e tieni le preferenze in context per tutta la sessione.
 
 Prima di scrivere qualsiasi codice esegui: `python ~/.claude/skills/owe-skill/scripts/search.py <keywords>`
 - FOUND:0 → passa a GitPilfer o scrivi da zero
