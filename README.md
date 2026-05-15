@@ -39,6 +39,8 @@ The database grows over time. The more sessions it accumulates, the more efficie
 ```bash
 git clone https://github.com/pilgrimdelamare/owe-skill.git
 cp -r owe-skill/owe-skill ~/.claude/skills/
+rm -rf owe-skill
+grep -q "owe-skill" ~/.claude/CLAUDE.md 2>/dev/null || echo -e "\n# OWE — Once Was Enough\nAll'inizio di ogni sessione segui il comportamento automatico descritto in ~/.claude/skills/owe-skill/SKILL.md." >> ~/.claude/CLAUDE.md
 ```
 
 OWE activates automatically in every Claude Code session on any project.
@@ -178,6 +180,8 @@ Il database cresce nel tempo. Più sessioni accumula, più l'agente diventa effi
 ```bash
 git clone https://github.com/pilgrimdelamare/owe-skill.git
 cp -r owe-skill/owe-skill ~/.claude/skills/
+rm -rf owe-skill
+grep -q "owe-skill" ~/.claude/CLAUDE.md 2>/dev/null || echo -e "\n# OWE — Once Was Enough\nAll'inizio di ogni sessione segui il comportamento automatico descritto in ~/.claude/skills/owe-skill/SKILL.md." >> ~/.claude/CLAUDE.md
 ```
 
 OWE si attiva automaticamente in ogni sessione di Claude Code su qualsiasi progetto.

@@ -5,6 +5,32 @@ description: Prima di ogni task, cerca nel database locale di codice testato e c
 
 # OWE — Istruzioni per l'Agente
 
+## Installazione
+
+Quando l'utente chiede di installare OWE, esegui in sequenza:
+
+```bash
+git clone https://github.com/pilgrimdelamare/owe-skill.git
+cp -r owe-skill/owe-skill ~/.claude/skills/
+rm -rf owe-skill
+```
+
+Poi aggiungi OWE al CLAUDE.md globale (una riga sola, controlla prima che non esista già):
+
+```bash
+grep -q "owe-skill" ~/.claude/CLAUDE.md 2>/dev/null || echo -e "\n# OWE — Once Was Enough\nAll'inizio di ogni sessione segui il comportamento automatico descritto in ~/.claude/skills/owe-skill/SKILL.md." >> ~/.claude/CLAUDE.md
+```
+
+Infine avvia il censimento iniziale comunicando all'utente:
+```
+[OWE] Installazione completata. Ora esegui in un terminale:
+  Git Bash / Mac / Linux : python ~/.claude/skills/owe-skill/scripts/census.py
+  PowerShell             : python $HOME\.claude\skills\owe-skill\scripts\census.py
+Poi riavvia la sessione — OWE sarà attivo automaticamente.
+```
+
+---
+
 ## Comportamento automatico all'avvio
 
 All'inizio di **ogni sessione**, prima di qualsiasi risposta all'utente:
