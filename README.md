@@ -121,6 +121,14 @@ OWE is agent-agnostic. It works the same on Claude Code, Windsurf, or any agent 
 
 ## Italiano
 
+> Un database locale di codice e conoscenza per agenti AI. Quello che l'agente impara una volta, lo ricorda per sempre.
+
+[English](#owe--once-was-enough) | **Italiano**
+
+---
+
+## Cos'è OWE?
+
 OWE è una skill globale per agenti AI (Claude Code, Windsurf e altri) che costruisce e consulta un database locale di:
 
 - **Codice testato** — funzioni e componenti già confermati funzionanti, indicizzati per nome e docstring
@@ -129,7 +137,7 @@ OWE è una skill globale per agenti AI (Claude Code, Windsurf e altri) che costr
 
 L'agente consulta il database automaticamente prima di scrivere qualsiasi codice. L'utente non fa nulla manualmente.
 
-### Come funziona
+## Come funziona
 
 ```
 Task → Ricerca OWE (automatica) → GitPilfer → Scrivi da zero
@@ -137,22 +145,37 @@ Task → Ricerca OWE (automatica) → GitPilfer → Scrivi da zero
 
 Prima di scrivere qualsiasi codice, l'agente cerca nell'indice locale a costo zero di token. Se trova qualcosa di utile lo riusa, altrimenti passa al livello successivo.
 
-### Installazione
+Il database cresce nel tempo. Più sessioni accumula, più l'agente diventa efficiente.
+
+## Stack
+
+- **Linguaggio:** Python 3 (stdlib only, zero dipendenze esterne)
+- **Storage:** JSON (`~/.owe/`)
+- **Compatibile con:** Unix, Windows (Git Bash / WSL)
+
+## Installazione
 
 ```bash
+# 1. Clona la repo
 git clone https://github.com/pilgrimdelamare/owe-skill
 cd owe-skill
+
+# 2. Copia gli script nella loro posizione permanente
 cp -r owe/scripts ~/.owe/scripts
+
+# 3. Copia la skill in Claude Code
 mkdir -p ~/.claude/skills/owe-skill
 cp owe/SKILL.md ~/.claude/skills/owe-skill/SKILL.md
+
+# 4. Avvia il censimento iniziale
 python ~/.owe/scripts/census.py
 ```
 
-Da quel momento Claude Code carica la skill automaticamente ad ogni sessione.
+Fatto. Claude Code carica la skill automaticamente dalla sessione successiva.
 
 **Alias accettati durante il censimento:** `desktop`, `documents`, `downloads`, `home`
 
-### Cosa fa l'agente automaticamente
+## Cosa fa l'agente automaticamente
 
 Una volta installata, ad ogni sessione l'agente:
 
@@ -163,7 +186,52 @@ Una volta installata, ad ogni sessione l'agente:
 
 Non lanci mai comandi di ricerca manualmente.
 
-### Regole
+## Script
+
+| Script | Funzione |
+|---|---|
+| `~/.owe/scripts/census.py` | Scansione iniziale + gestione componenti |
+| `~/.owe/scripts/search.py` | Ricerca nell'indice (zero token per l'agente) |
+| `~/.owe/scripts/verify.py` | Controlla path stale e conoscenza scaduta |
+
+## Comandi slash
+
+| Comando | Azione |
+|---|---|
+| `/owe-sync` | Riscansiona le cartelle configurate |
+| `/owe-setup` | Riconfigura cartelle ed estensioni |
+| `/owe-status` | Dashboard: componenti, domini, preferenze, entry stale |
+| `/owe-pref` | Aggiunge una preferenza utente |
+| `/owe-autosync-on` | Aggiunge nuovi componenti senza chiedere conferma |
+| `/owe-autosync-off` | Torna a chiedere conferma prima di aggiungere |
+| `/owe-export` | Copia `~/.owe/` sul Desktop come archivio zip |
+| `/owe-import` | Carica un archivio zip in `~/.owe/` |
+
+## Struttura del database
+
+```
+~/.owe/
+├── index.json          # Indice globale (codice + conoscenza + config)
+├── prefs.json          # Preferenze utente (sempre caricate)
+├── scripts/            # Script OWE (installati qui)
+└── knowledge/
+    └── <dominio>/
+        └── notes.json  # Note per dominio (redis, firebase, ecc.)
+```
+
+## Portabilità
+
+Il database vive in `~/.owe/` — locale, nascosto, nessuna sincronizzazione remota.
+
+- `/owe-export` → comprime `~/.owe/` sul Desktop
+- `/owe-import` → carica l'archivio dal Desktop
+- Trasferimento via chiavetta USB o metodo manuale a scelta
+
+## Multi-agente
+
+OWE è agnostico all'agente. Funziona uguale su Claude Code, Windsurf o qualsiasi altro agente sulla stessa macchina. Quando un agente trova nuovi componenti non registrati, propone di aggiungerli. Con `autosync: true`, questo avviene silenziosamente.
+
+## Regole
 
 - Componenti: aggiunti con conferma utente (silenzioso se `autosync: true`)
 - Note di conoscenza: **mai** aggiunte senza conferma
