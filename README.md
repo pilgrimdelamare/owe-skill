@@ -20,9 +20,7 @@ The agent consults the database automatically before writing any code. You do no
 
 ## How it works
 
-```
-Task → OWE search (automatic) → [GitPilfer](https://github.com/pilgrimdelamare/GitPilfer) → Write from scratch
-```
+**Task → OWE search (automatic) → [GitPilfer](https://github.com/pilgrimdelamare/GitPilfer) → Write from scratch**
 
 Before writing any code, the agent searches the local index at zero token cost. If something useful exists, it reuses it. If not, it falls through to GitHub search or writes from scratch.
 
@@ -145,9 +143,7 @@ L'agente consulta il database automaticamente prima di scrivere qualsiasi codice
 
 ## Come funziona
 
-```
-Task → Ricerca OWE (automatica) → [GitPilfer](https://github.com/pilgrimdelamare/GitPilfer) → Scrivi da zero
-```
+**Task → Ricerca OWE (automatica) → [GitPilfer](https://github.com/pilgrimdelamare/GitPilfer) → Scrivi da zero**
 
 Prima di scrivere qualsiasi codice, l'agente cerca nell'indice locale a costo zero di token. Se trova qualcosa di utile lo riusa, altrimenti passa al livello successivo.
 
