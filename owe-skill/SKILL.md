@@ -30,20 +30,20 @@ All'inizio di ogni sessione, prima di rispondere:
 
 2. Leggi `~/.owe/prefs.json` e tieni le preferenze in context per tutta la sessione.
 
-Prima di scrivere qualsiasi codice esegui: `python ~/.claude/skills/owe-skill/scripts/search.py <keywords>`
+Prima di scrivere qualsiasi codice esegui: `python ~/.claude/skills/owe-skill/scripts/search.py <keyword1> [keyword2]`
+- Usa **massimo 2 keyword** — le più essenziali che descrivono il pattern funzionale
 - FOUND:0 → passa a GitPilfer o scrivi da zero
 - FOUND:N → usa i risultati
 
-**Le keyword devono descrivere il pattern funzionale, non la tecnologia specifica del task.**
-Cerca quello che il codice FA, non con cosa è fatto.
+Le keyword descrivono cosa fa il codice, non con cosa è fatto.
 
 | Invece di | Cerca |
 |---|---|
-| `redis` `firebase` `mongo` | `cache` `store` `persist` |
-| `stripe` `paypal` `braintree` | `payment` `checkout` `billing` |
-| `jwt` `oauth` `clerk` | `auth` `token` `session` |
-| `sendgrid` `mailgun` `ses` | `email` `notify` `send` |
-| `s3` `cloudinary` `gcs` | `upload` `storage` `file` |
+| `redis` `firebase` `mongo` | `cache` oppure `store` |
+| `stripe` `paypal` `braintree` | `payment` oppure `checkout` |
+| `jwt` `oauth` `clerk` | `auth` oppure `token` |
+| `sendgrid` `mailgun` `ses` | `email` oppure `send` |
+| `s3` `cloudinary` `gcs` | `upload` oppure `file` |
 OWEEOF
 ```
 
