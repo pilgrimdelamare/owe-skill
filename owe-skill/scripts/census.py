@@ -46,6 +46,37 @@ def should_skip(dirname):
     return False
 
 
+# --- Auto-tagging ---
+
+# Parole troppo generiche per essere tag utili
+NOISE_WORDS = {
+    "get", "set", "is", "has", "on", "do", "run", "use", "new", "old",
+    "add", "init", "main", "test", "data", "item", "list", "obj", "val",
+    "tmp", "temp", "index", "default", "base", "common", "util", "helper",
+    "handler", "manager", "service", "component", "module", "class", "type",
+    "fn", "cb", "id", "key", "map", "res", "req", "err", "ctx", "ref",
+    "the", "and", "for", "from", "with", "that", "this", "not", "are",
+}
+
+def split_name(name):
+    """Split camelCase, PascalCase, snake_case, kebab-case into words."""
+    # camelCase / PascalCase
+    words = re.sub(r'([a-z])([A-Z])', r'\1 \2', name)
+    # snake_case e kebab-case
+    words = re.sub(r'[_\-]', ' ', words)
+    return [w.lower() for w in words.split() if len(w) > 2 and w.lower() not in NOISE_WORDS]
+
+
+def auto_tags(name, filename, parent):
+    """Generate tags from function name, filename and parent directory."""
+    words = set()
+    words.update(split_name(name))
+    words.update(split_name(filename))
+    words.update(split_name(parent))
+    # rimuovi ancora noise e numeri puri
+    return sorted(w for w in words if not w.isdigit())
+
+
 def init_index():
     return {
         "version": 1,
@@ -198,7 +229,7 @@ def run_census(idx):
                             "docstring": c["docstring"],
                             "filename": filename,
                             "parent": parent,
-                            "tags": [],
+                            "tags": auto_tags(c["name"], filename, parent),
                             "added": today,
                             "verified": today
                         })
@@ -286,16 +317,24 @@ def cmd_remove(idx, name):
 
 
 def cmd_enrich(idx):
-    """Add filename and parent fields to existing components that lack them."""
+    """Add filename, parent and auto-tags to existing components that lack them."""
     enriched = 0
     for c in idx["code"]["components"]:
+        p = c.get("path", "")
+        filename = os.path.splitext(os.path.basename(p))[0]
+        parent = os.path.basename(os.path.dirname(p))
+        changed = False
         if "filename" not in c or "parent" not in c:
-            p = c.get("path", "")
-            c["filename"] = os.path.splitext(os.path.basename(p))[0]
-            c["parent"] = os.path.basename(os.path.dirname(p))
+            c["filename"] = filename
+            c["parent"] = parent
+            changed = True
+        if not c.get("tags"):
+            c["tags"] = auto_tags(c.get("name", ""), filename, parent)
+            changed = True
+        if changed:
             enriched += 1
     save_index(idx)
-    print(f"Arricchiti {enriched} componenti con filename e parent.")
+    print(f"Arricchiti {enriched} componenti con filename, parent e tag automatici.")
 
 
 def main():
