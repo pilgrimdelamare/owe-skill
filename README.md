@@ -27,9 +27,7 @@ It's 4am. The token counter is spinning like a slot machine and Claude is failin
 
 ## How it works
 
-```
-Task → OWE search (zero tokens) → [GitPilfer](https://github.com/pilgrimdelamare/GitPilfer) → Write from scratch
-```
+**Task → OWE search (zero tokens) → [GitPilfer](https://github.com/pilgrimdelamare/GitPilfer) → Write from scratch**
 
 Before touching a single file, the agent queries a local SQLite index. If a tested solution exists, it reuses it. If not, it falls through to GitHub search, then writes from scratch. The database grows silently in the background. The more sessions it accumulates, the less the agent has to reinvent.
 
@@ -231,9 +229,7 @@ Sono le 4 del mattino. Il contatore dei token gira come una slot machine e Claud
 
 ## Come funziona
 
-```
-Task → Ricerca OWE (zero token) → [GitPilfer](https://github.com/pilgrimdelamare/GitPilfer) → Scrivi da zero
-```
+**Task → Ricerca OWE (zero token) → [GitPilfer](https://github.com/pilgrimdelamare/GitPilfer) → Scrivi da zero**
 
 Prima di toccare un singolo file, l'agente interroga un indice SQLite locale. Se esiste una soluzione già testata, la riusa. Se no, passa alla ricerca su GitHub, poi scrive da zero. Il database cresce silenziosamente in background. Più sessioni accumula, meno l'agente deve reinventare.
 
