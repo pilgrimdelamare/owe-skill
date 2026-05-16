@@ -1,8 +1,8 @@
 <div align="center">
 
-<img src="assets/owe.png" alt="OWE" width="180" />
-
 # OWE — Once Was Enough
+
+<img src="assets/owe.png" alt="OWE" width="720" />
 
 [![Python](https://img.shields.io/badge/Python-3.8+-3776AB?logo=python&logoColor=white)](https://python.org)
 [![License: MIT](https://img.shields.io/badge/License-MIT-22c55e)](LICENSE)
@@ -204,9 +204,9 @@ OWE is agent-agnostic. The same database works on Claude Code, Windsurf, or any 
 
 <div align="center">
 
-<img src="assets/owe.png" alt="OWE" width="180" />
-
 # OWE — Once Was Enough
+
+<img src="assets/owe.png" alt="OWE" width="720" />
 
 [![Python](https://img.shields.io/badge/Python-3.8+-3776AB?logo=python&logoColor=white)](https://python.org)
 [![License: MIT](https://img.shields.io/badge/License-MIT-22c55e)](LICENSE)
