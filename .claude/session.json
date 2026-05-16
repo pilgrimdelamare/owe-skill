@@ -1,0 +1,15 @@
+{
+  "stato": "ST:F3/4:sqlite-treesitter",
+  "tipo_attivo": "feature",
+  "task_corrente": "Migrazione SQLite FTS5 + tree-sitter (Todo 1+2)",
+  "step_corrente": 3,
+  "step_totale": 4,
+  "note": [
+    "Schema FTS5 content table + triggers adattato da colbymchenry/codegraph (MIT)",
+    "Creati: _db.py, census.py, search.py, verify.py",
+    "Bug fix: _node_text() usa source_bytes slice per correttezza con file multi-byte UTF-8",
+    "Migrazione index.json -> SQLite: 2374 componenti importati automaticamente al primo avvio",
+    "Deploy: cp a ~/.claude/skills/owe-skill/ completato e testato"
+  ],
+  "ultima_modifica": "2026-05-16T00:00:00"
+}
