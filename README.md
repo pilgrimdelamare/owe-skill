@@ -1,38 +1,46 @@
 # OWE — Once Was Enough
 
-> A local knowledge and code cache for AI coding agents. What the agent learns once, it remembers forever.
+> The AI coding agent knows everything. It remembers nothing. OWE fixes that.
 
-It's 4am, the world is asleep and someone is banging their head against the wall. That's you, while the token counter spins like a slot machine and Claude keeps failing on a problem you've solved 1000 times across 1000 projects. He knows everything, but remembers nothing. OWE fixes this: it creates a local database where the agent accumulates tested code, acquired knowledge and your preferences, session after session, repo after repo. And the more experience it accumulates, the more performant it becomes — going from junior to finally senior developer.
+**Zero token cost · Persists across sessions · Agent-agnostic**
+
+---
+
+It's 4am. The token counter is spinning like a slot machine and Claude is failing on a problem you've solved a hundred times across a hundred projects. OWE is the fix: a local database that grows with every session, every repo, every agent — turning a perpetual junior into something that actually remembers.
 
 **English** | [Italiano](#italiano)
 
 ---
 
-## What is OWE?
-
-OWE is a global skill for AI coding agents (Claude Code, Windsurf, and others) that builds and queries a local database of:
-
-- **Tested code** — functions and components indexed by name, docstring, parameters and call graph
-- **Acquired knowledge** — API quirks, dead ends, unexpected behaviors, organized by domain
-- **User preferences** — how you want the agent to behave, loaded into context on every session
-
-The agent consults the database automatically before writing any code. You do nothing manually.
-
 ## How it works
 
-**Task → OWE search (automatic) → [GitPilfer](https://github.com/pilgrimdelamare/GitPilfer) → Write from scratch**
+```
+Task → OWE search (zero tokens) → GitPilfer → Write from scratch
+```
 
-Before writing any code, the agent searches the local SQLite index at zero token cost. If something useful exists, it reuses it. If not, it falls through to GitHub search or writes from scratch.
+Before touching a single file, the agent queries a local SQLite index. If a tested solution exists, it reuses it. If not, it falls through to GitHub search, then writes from scratch. The database grows silently in the background. The more sessions it accumulates, the less the agent has to reinvent.
 
-The database grows over time. The more sessions it accumulates, the more efficient the agent becomes.
+---
+
+## What gets stored
+
+| Layer | Contents |
+|---|---|
+| **Code** | Functions indexed by name, docstring, parameters, call graph, and exact line coordinates |
+| **Knowledge** | API quirks, dead ends, unexpected behaviors — organized by domain |
+| **Preferences** | How you want the agent to behave — loaded into context every session, automatically |
+
+---
 
 ## Stack
 
-- **Language:** Python 3
-- **Storage:** SQLite + FTS5 (`~/.owe/owe.db`) — full-text search with BM25 ranking
-- **Code parsing:** tree-sitter (auto-installed via pip on first run)
-- **File watcher:** watchdog (auto-installed via pip on first run)
-- **Compatible with:** Unix, Windows (Git Bash / WSL)
+- **Storage** — SQLite + FTS5 (`~/.owe/owe.db`) — BM25 full-text ranking, zero latency
+- **Parsing** — tree-sitter (Python, JS, TS) — exact AST coordinates, not regex guesses
+- **Sync** — watchdog file watcher — incremental SQLite updates on every file change
+- **Dependencies** — tree-sitter and watchdog auto-install via pip on first run
+- **Portability** — Unix and Windows (Git Bash / WSL) — one database, any machine
+
+---
 
 ## Installation
 
@@ -44,25 +52,25 @@ cp -r owe-skill/owe-skill ~/.claude/skills/
 rm -rf owe-skill
 ```
 
-Then add the following to `~/.claude/CLAUDE.md`:
+Add to `~/.claude/CLAUDE.md`:
 
 ```
 # OWE — Once Was Enough
 
-All'inizio di ogni sessione, prima di rispondere:
+At the start of every session, before responding:
 
-1. Controlla se $HOME/.owe/owe.db esiste:
-   - Non esiste → di' all'utente: "[OWE] Database non trovato. Esegui: python $HOME/.claude/skills/owe-skill/scripts/census.py"
-   - Esiste → esegui python $HOME/.claude/skills/owe-skill/scripts/verify.py --status e riporta come [OWE] <output>
+1. Check if $HOME/.owe/owe.db exists:
+   - Not found → tell the user: "[OWE] Database not found. Run: python $HOME/.claude/skills/owe-skill/scripts/census.py"
+   - Found → run python $HOME/.claude/skills/owe-skill/scripts/verify.py --status and report as [OWE] <output>
 
-2. Esegui python $HOME/.claude/skills/owe-skill/scripts/prefs.py --load e tieni le preferenze in context.
+2. Run python $HOME/.claude/skills/owe-skill/scripts/prefs.py --load and keep preferences in context.
 
-Prima di scrivere codice: python $HOME/.claude/skills/owe-skill/scripts/search.py keyword1 keyword2
+Before writing any code: python $HOME/.claude/skills/owe-skill/scripts/search.py keyword1 keyword2
 ```
 
-OWE activates automatically in every Claude Code session on any project.
+OWE activates automatically in every Claude Code session, on every project.
 
-### Windsurf — global (all projects)
+### Windsurf — global
 
 Open **Settings → Cascade → Global Rules** and paste the contents of `owe-skill/SKILL.md`.
 
@@ -74,25 +82,23 @@ cat owe-skill/SKILL.md > /path/to/your-project/.windsurfrules
 
 ### First run
 
-After installing, run the initial census once:
-
 ```bash
 python ~/.claude/skills/owe-skill/scripts/census.py
 ```
 
-It will ask which folders to scan. From that point on, OWE manages everything automatically.
+It asks which folders to scan. From that point on, OWE manages everything automatically.
+
+---
 
 ## Census levels
 
-OWE analyzes code at three levels of depth:
+OWE indexes code in three passes. Each pass is additive — run them once after the initial setup.
 
-| Level | Command | What it extracts |
+| Level | Command | What it adds |
 |---|---|---|
-| **Light** (0) | `census.py` (default) | Function names, docstrings, auto-tags, line range |
-| **Medium** (1) | `census.py --medium` | Parameters, call graph (what calls what) |
-| **Heavy** (2) | `census.py --heavy` | File mtime snapshot — enables coordinate staleness detection |
-
-Run all three after the initial census to fully populate the database:
+| **Light** (0) | `census.py` | Function names, docstrings, auto-tags, exact line range |
+| **Medium** (1) | `census.py --medium` | Parameters, call graph — what calls what |
+| **Heavy** (2) | `census.py --heavy` | File mtime snapshot for coordinate staleness detection |
 
 ```bash
 python ~/.claude/skills/owe-skill/scripts/census.py
@@ -100,34 +106,42 @@ python ~/.claude/skills/owe-skill/scripts/census.py --medium
 python ~/.claude/skills/owe-skill/scripts/census.py --heavy
 ```
 
-`verify.py --status` shows how many components are at each level.
+> **No file copying.** Heavy census stores only a mtime timestamp in SQLite. Function bodies are read on demand via exact line coordinates (`path:start-end`). Zero disk overhead.
 
-## What the agent does automatically
+`verify.py --status` shows the breakdown per level at any time.
 
-**At startup:**
+---
 
-1. Checks that `~/.owe/owe.db` exists
+## What the agent does
+
+**At startup — automatically:**
+
+1. Checks `~/.owe/owe.db` exists
 2. Runs `verify.py --status` and reports the dashboard
-3. Runs `prefs.py --load` and loads preferences into context
+3. Runs `prefs.py --load` and injects preferences into context
 
-**Before each task:**
+**Before every task — automatically:**
 
 1. Searches the local index: `search.py keyword1 keyword2`
-2. Reuses what it finds, or falls through to GitPilfer, then writes from scratch
+2. Reuses what it finds — or falls through to GitPilfer, then scratch
 
-You never run search commands manually.
+You never run these commands manually.
+
+---
 
 ## Scripts
 
 | Script | Purpose |
 |---|---|
-| `_db.py` | Shared SQLite module (schema, FTS5, migration) |
-| `census.py` | Scan + component management (`--medium`, `--heavy`, `--add`, `--remove`) |
-| `search.py` | FTS5 search with BM25 ranking (zero agent tokens) |
-| `verify.py` | Check stale paths, outdated knowledge, census levels |
+| `_db.py` | Shared SQLite module — schema, FTS5 triggers, migration |
+| `census.py` | Scan and manage components (`--medium`, `--heavy`, `--add`, `--remove`) |
+| `search.py` | FTS5 BM25 search — returns `FOUND:N` + ranked results |
+| `verify.py` | Check stale paths, stale knowledge, census level breakdown |
 | `prefs.py` | User preference CRUD (`--add`, `--list`, `--remove`, `--load`) |
-| `export_import.py` | Vault backup/restore via zip |
-| `watcher.py` | File watcher for incremental auto-sync |
+| `export_import.py` | Vault backup and restore via zip |
+| `watcher.py` | File watcher — incremental sync on every save |
+
+---
 
 ## Slash commands
 
@@ -135,94 +149,111 @@ You never run search commands manually.
 |---|---|
 | `/owe-sync` | Re-scan configured folders |
 | `/owe-setup` | Reconfigure folders and extensions |
-| `/owe-status` | Dashboard: components, domains, preferences, census levels, stale entries |
+| `/owe-status` | Dashboard: components, knowledge, preferences, census levels, stale entries |
 | `/owe-pref` | Add a user preference |
-| `/owe-autosync-on` | Auto-add new components without confirmation |
+| `/owe-autosync-on` | Add new components without confirmation |
 | `/owe-autosync-off` | Revert to asking before adding |
 | `/owe-export` | Zip `~/.owe/` to Desktop |
 | `/owe-import` | Restore from Desktop zip |
+
+---
 
 ## Database structure
 
 ```
 ~/.owe/
-├── owe.db              # SQLite database (components + knowledge + prefs + config)
-│                       # FTS5 indexes on components and knowledge
+├── owe.db          # Everything — components, knowledge, preferences, config
 └── knowledge/
     └── <domain>/
-        └── notes.json  # Notes per domain (redis, firebase, etc.)
+        └── notes.json
 ```
 
-### SQLite tables
+### components table
 
-| Table | Contents |
+| Column | Description |
 |---|---|
-| `components` | path, name, line, end_line, file_mtime, docstring, filename, parent, tags, params, calls, census_level |
-| `components_fts` | FTS5 virtual table (content mirror of components) |
-| `knowledge` | domain, title, content, added, verified |
-| `knowledge_fts` | FTS5 virtual table (content mirror of knowledge) |
-| `preferences` | id, text, added |
-| `config` | key/value: autosync, scan_paths, extensions, staleness_days |
+| `path` | Absolute path to the source file |
+| `name` | Function or method name |
+| `line` / `end_line` | Exact line range — body readable on demand without loading the full file |
+| `file_mtime` | Mtime at last heavy census — used to detect stale coordinates |
+| `docstring` | First docstring line, truncated to 120 chars |
+| `tags` | Auto-generated from name, filename, and parent folder |
+| `params` / `calls` | Parameters string and call graph (medium census) |
+| `census_level` | 0 = light · 1 = medium · 2 = heavy |
+
+---
+
+## Rules
+
+- **Components** — added with confirmation (silent if `autosync: true`)
+- **Knowledge notes** — never added without confirmation
+- **Preferences** — never added without confirmation
+- **Stale entries** — flagged by `verify.py`, never silently ignored (default threshold: 30 days)
+
+---
 
 ## Portability
-
-The database lives at `~/.owe/` — local, hidden, no remote sync.
 
 ```bash
 python export_import.py --export   # zips ~/.owe/ to Desktop
 python export_import.py --import   # restores from Desktop zip (backs up current to ~/.owe.bak/)
 ```
 
-Transfer via USB or any manual method.
+Transfer via USB or any manual method. No cloud, no sync, no account.
+
+---
 
 ## Multi-agent
 
-OWE is agent-agnostic. It works the same on Claude Code, Windsurf, or any agent on the same machine. When an agent finds new unregistered components, it proposes adding them. With `autosync: true`, this happens silently.
+OWE is agent-agnostic. The same database works on Claude Code, Windsurf, or any agent running on the same machine. The watcher picks up changes from any of them. With `autosync: off` (default), new components are proposed, not silently added.
 
-## Rules
-
-- Components: added with user confirmation (silent if `autosync: true`)
-- Knowledge notes: **never** added without confirmation
-- User preferences: **never** added without confirmation
-- Stale entries (default threshold: 30 days): flagged, not ignored
+---
 
 ---
 
 ## Italiano
 
-> Un database locale di codice e conoscenza per agenti AI. Quello che l'agente impara una volta, lo ricorda per sempre.
+> L'agente AI sa tutto. Non ricorda niente. OWE risolve questo.
 
-Sono le 4 am, il mondo dorme e una persona sbatte la testa contro il muro. Sei tu, mentre il contatore dei token gira come una slot machine e Claude continua a fallire su un problema che avete risolto 1000 volte su 1000 progetti. Lui sa tutto, ma non si ricorda niente. OWE risolve questo: crea un database locale dove l'agente accumula codice testato, conoscenza acquisita e le tue preferenze, sessione dopo sessione, repo dopo repo. E più accumula esperienza più diventa performante, passando da junior a finalmente senior developer.
+**Zero token · Persiste tra sessioni · Funziona su qualsiasi agente**
+
+---
+
+Sono le 4 del mattino. Il contatore dei token gira come una slot machine e Claude sta fallendo su un problema che hai risolto cento volte in cento progetti diversi. OWE è la soluzione: un database locale che cresce a ogni sessione, ogni repo, ogni agente — trasformando un eterno junior in qualcosa che finalmente si ricorda.
 
 [English](#owe--once-was-enough) | **Italiano**
 
 ---
 
-## Cos'è OWE?
-
-OWE è una skill globale per agenti AI (Claude Code, Windsurf e altri) che costruisce e consulta un database locale di:
-
-- **Codice testato** — funzioni e componenti indicizzati per nome, docstring, parametri e call graph
-- **Conoscenza acquisita** — quirk di API, vicoli ciechi, comportamenti inattesi, organizzati per dominio
-- **Preferenze utente** — come vuoi che l'agente si comporti, caricate in context ad ogni sessione
-
-L'agente consulta il database automaticamente prima di scrivere qualsiasi codice. L'utente non fa nulla manualmente.
-
 ## Come funziona
 
-**Task → Ricerca OWE (automatica) → [GitPilfer](https://github.com/pilgrimdelamare/GitPilfer) → Scrivi da zero**
+```
+Task → Ricerca OWE (zero token) → GitPilfer → Scrivi da zero
+```
 
-Prima di scrivere qualsiasi codice, l'agente cerca nell'indice SQLite locale a costo zero di token. Se trova qualcosa di utile lo riusa, altrimenti passa al livello successivo.
+Prima di toccare un singolo file, l'agente interroga un indice SQLite locale. Se esiste una soluzione già testata, la riusa. Se no, passa alla ricerca su GitHub, poi scrive da zero. Il database cresce silenziosamente in background. Più sessioni accumula, meno l'agente deve reinventare.
 
-Il database cresce nel tempo. Più sessioni accumula, più l'agente diventa efficiente.
+---
+
+## Cosa viene salvato
+
+| Layer | Contenuto |
+|---|---|
+| **Codice** | Funzioni indicizzate per nome, docstring, parametri, call graph e coordinate di riga esatte |
+| **Conoscenza** | Quirk di API, vicoli ciechi, comportamenti inattesi — organizzati per dominio |
+| **Preferenze** | Come vuoi che l'agente si comporti — caricate in context a ogni sessione, in automatico |
+
+---
 
 ## Stack
 
-- **Linguaggio:** Python 3
-- **Storage:** SQLite + FTS5 (`~/.owe/owe.db`) — ricerca full-text con ranking BM25
-- **Parsing codice:** tree-sitter (auto-installato via pip al primo avvio)
-- **File watcher:** watchdog (auto-installato via pip al primo avvio)
-- **Compatibile con:** Unix, Windows (Git Bash / WSL)
+- **Storage** — SQLite + FTS5 (`~/.owe/owe.db`) — ranking BM25, zero latenza
+- **Parsing** — tree-sitter (Python, JS, TS) — coordinate AST esatte, non regex
+- **Sync** — file watcher watchdog — aggiornamento incrementale SQLite a ogni salvataggio
+- **Dipendenze** — tree-sitter e watchdog si auto-installano via pip al primo avvio
+- **Portabilita'** — Unix e Windows (Git Bash / WSL) — un database, qualsiasi macchina
+
+---
 
 ## Installazione
 
@@ -234,7 +265,7 @@ cp -r owe-skill/owe-skill ~/.claude/skills/
 rm -rf owe-skill
 ```
 
-Poi aggiungi in `~/.claude/CLAUDE.md`:
+Aggiungi in `~/.claude/CLAUDE.md`:
 
 ```
 # OWE — Once Was Enough
@@ -250,9 +281,9 @@ All'inizio di ogni sessione, prima di rispondere:
 Prima di scrivere codice: python $HOME/.claude/skills/owe-skill/scripts/search.py keyword1 keyword2
 ```
 
-OWE si attiva automaticamente in ogni sessione di Claude Code su qualsiasi progetto.
+OWE si attiva automaticamente in ogni sessione di Claude Code, su qualsiasi progetto.
 
-### Windsurf — globale (tutti i progetti)
+### Windsurf — globale
 
 Apri **Settings → Cascade → Global Rules** e incolla il contenuto di `owe-skill/SKILL.md`.
 
@@ -264,25 +295,23 @@ cat owe-skill/SKILL.md > /percorso/tuo-progetto/.windsurfrules
 
 ### Primo avvio
 
-Dopo l'installazione, esegui il censimento iniziale una volta sola:
-
 ```bash
 python ~/.claude/skills/owe-skill/scripts/census.py
 ```
 
-Chiederà quali cartelle scansionare. Da quel momento OWE gestisce tutto automaticamente.
+Chiede quali cartelle scansionare. Da quel momento OWE gestisce tutto in automatico.
+
+---
 
 ## Livelli di censimento
 
-OWE analizza il codice a tre livelli di profondita':
+OWE indicizza il codice in tre passaggi. Ogni passaggio e' additivo — eseguili una volta dopo il setup iniziale.
 
-| Livello | Comando | Cosa estrae |
+| Livello | Comando | Cosa aggiunge |
 |---|---|---|
-| **Light** (0) | `census.py` (default) | Nomi funzione, docstring, tag automatici, range righe |
-| **Medio** (1) | `census.py --medium` | Parametri, call graph (cosa chiama cosa) |
-| **Pesante** (2) | `census.py --heavy` | Snapshot mtime del file — abilita rilevamento staleness coordinate |
-
-Esegui tutti e tre dopo il primo censimento per popolare completamente il database:
+| **Light** (0) | `census.py` | Nomi funzione, docstring, tag automatici, range di riga esatto |
+| **Medio** (1) | `census.py --medium` | Parametri, call graph — cosa chiama cosa |
+| **Pesante** (2) | `census.py --heavy` | Snapshot mtime per rilevamento staleness delle coordinate |
 
 ```bash
 python ~/.claude/skills/owe-skill/scripts/census.py
@@ -290,34 +319,42 @@ python ~/.claude/skills/owe-skill/scripts/census.py --medium
 python ~/.claude/skills/owe-skill/scripts/census.py --heavy
 ```
 
-`verify.py --status` mostra quanti componenti sono a ciascun livello.
+> **Nessuna copia di file.** Il censimento pesante salva solo un timestamp mtime in SQLite. I corpi delle funzioni vengono letti su richiesta tramite coordinate di riga esatte (`path:start-end`). Zero overhead su disco.
 
-## Cosa fa l'agente automaticamente
+`verify.py --status` mostra la suddivisione per livello in qualsiasi momento.
 
-**All'avvio:**
+---
+
+## Cosa fa l'agente
+
+**All'avvio — in automatico:**
 
 1. Controlla che `~/.owe/owe.db` esista
 2. Esegue `verify.py --status` e riporta il dashboard
-3. Esegue `prefs.py --load` e carica le preferenze in context
+3. Esegue `prefs.py --load` e inietta le preferenze in context
 
-**Prima di ogni task:**
+**Prima di ogni task — in automatico:**
 
 1. Cerca nell'indice locale: `search.py keyword1 keyword2`
-2. Riusa quello che trova, o passa a GitPilfer, poi scrive da zero
+2. Riusa quello che trova — o passa a GitPilfer, poi scrive da zero
 
-Non lanci mai comandi di ricerca manualmente.
+Non lanci mai questi comandi manualmente.
+
+---
 
 ## Script
 
 | Script | Funzione |
 |---|---|
-| `_db.py` | Modulo SQLite condiviso (schema, FTS5, migrazione) |
-| `census.py` | Scansione + gestione componenti (`--medium`, `--heavy`, `--add`, `--remove`) |
-| `search.py` | Ricerca FTS5 con ranking BM25 (zero token per l'agente) |
-| `verify.py` | Controlla path stale, conoscenza scaduta, livelli censimento |
-| `prefs.py` | Gestione preferenze (`--add`, `--list`, `--remove`, `--load`) |
-| `export_import.py` | Backup/ripristino vault via zip |
-| `watcher.py` | File watcher per auto-sync incrementale |
+| `_db.py` | Modulo SQLite condiviso — schema, trigger FTS5, migrazione |
+| `census.py` | Scansione e gestione componenti (`--medium`, `--heavy`, `--add`, `--remove`) |
+| `search.py` | Ricerca FTS5 BM25 — restituisce `FOUND:N` + risultati ordinati |
+| `verify.py` | Controlla path stale, conoscenza stale, breakdown livelli censimento |
+| `prefs.py` | CRUD preferenze utente (`--add`, `--list`, `--remove`, `--load`) |
+| `export_import.py` | Backup e ripristino vault via zip |
+| `watcher.py` | File watcher — sync incrementale a ogni salvataggio |
+
+---
 
 ## Comandi slash
 
@@ -325,53 +362,60 @@ Non lanci mai comandi di ricerca manualmente.
 |---|---|
 | `/owe-sync` | Riscansiona le cartelle configurate |
 | `/owe-setup` | Riconfigura cartelle ed estensioni |
-| `/owe-status` | Dashboard: componenti, domini, preferenze, livelli censimento, entry stale |
+| `/owe-status` | Dashboard: componenti, conoscenza, preferenze, livelli censimento, entry stale |
 | `/owe-pref` | Aggiunge una preferenza utente |
 | `/owe-autosync-on` | Aggiunge nuovi componenti senza chiedere conferma |
 | `/owe-autosync-off` | Torna a chiedere conferma prima di aggiungere |
 | `/owe-export` | Comprime `~/.owe/` sul Desktop |
 | `/owe-import` | Ripristina dal zip sul Desktop |
 
+---
+
 ## Struttura del database
 
 ```
 ~/.owe/
-├── owe.db              # Database SQLite (componenti + conoscenza + preferenze + config)
-│                       # Indici FTS5 su componenti e conoscenza
+├── owe.db          # Tutto — componenti, conoscenza, preferenze, config
 └── knowledge/
     └── <dominio>/
-        └── notes.json  # Note per dominio (redis, firebase, ecc.)
+        └── notes.json
 ```
 
-### Tabelle SQLite
+### Tabella components
 
-| Tabella | Contenuto |
+| Colonna | Descrizione |
 |---|---|
-| `components` | path, name, line, end_line, file_mtime, docstring, filename, parent, tags, params, calls, census_level |
-| `components_fts` | Tabella virtuale FTS5 (mirror di components) |
-| `knowledge` | domain, title, content, added, verified |
-| `knowledge_fts` | Tabella virtuale FTS5 (mirror di knowledge) |
-| `preferences` | id, text, added |
-| `config` | key/value: autosync, scan_paths, extensions, staleness_days |
+| `path` | Path assoluto al file sorgente |
+| `name` | Nome della funzione o metodo |
+| `line` / `end_line` | Range di riga esatto — corpo leggibile su richiesta senza caricare il file intero |
+| `file_mtime` | Mtime all'ultimo censimento pesante — usato per rilevare coordinate stale |
+| `docstring` | Prima riga di docstring, troncata a 120 char |
+| `tags` | Generati automaticamente da nome, filename e cartella padre |
+| `params` / `calls` | Stringa parametri e call graph (censimento medio) |
+| `census_level` | 0 = light · 1 = medio · 2 = pesante |
+
+---
+
+## Regole
+
+- **Componenti** — aggiunti con conferma (silenzioso se `autosync: true`)
+- **Note di conoscenza** — mai aggiunte senza conferma
+- **Preferenze** — mai aggiunte senza conferma
+- **Entry stale** — segnalate da `verify.py`, mai ignorate silenziosamente (soglia default: 30 giorni)
+
+---
 
 ## Portabilita'
-
-Il database vive in `~/.owe/` — locale, nascosto, nessuna sincronizzazione remota.
 
 ```bash
 python export_import.py --export   # comprime ~/.owe/ sul Desktop
 python export_import.py --import   # ripristina dal zip (backup corrente in ~/.owe.bak/)
 ```
 
-Trasferimento via chiavetta USB o metodo manuale a scelta.
+Trasferimento via USB o metodo manuale a scelta. Niente cloud, niente sync, niente account.
+
+---
 
 ## Multi-agente
 
-OWE e' agnostico all'agente. Funziona uguale su Claude Code, Windsurf o qualsiasi altro agente sulla stessa macchina. Quando un agente trova nuovi componenti non registrati, propone di aggiungerli. Con `autosync: true`, questo avviene silenziosamente.
-
-## Regole
-
-- Componenti: aggiunti con conferma utente (silenzioso se `autosync: true`)
-- Note di conoscenza: **mai** aggiunte senza conferma
-- Preferenze utente: **mai** aggiunte senza conferma
-- Entry stale (soglia configurabile, default 30 giorni): segnalate, non ignorate
+OWE e' agnostico rispetto all'agente. Lo stesso database funziona su Claude Code, Windsurf o qualsiasi altro agente sulla stessa macchina. Il watcher rileva le modifiche da chiunque. Con `autosync: off` (default), i nuovi componenti vengono proposti, non aggiunti silenziosamente.
