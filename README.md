@@ -1,5 +1,12 @@
 # OWE — Once Was Enough
 
+[![Python](https://img.shields.io/badge/Python-3.8+-3776AB?logo=python&logoColor=white)](https://python.org)
+[![License: MIT](https://img.shields.io/badge/License-MIT-22c55e)](LICENSE)
+[![SQLite FTS5](https://img.shields.io/badge/SQLite-FTS5-003B57?logo=sqlite&logoColor=white)](https://sqlite.org)
+[![Windows](https://img.shields.io/badge/Windows-0078D4?logo=windows&logoColor=white)](https://github.com/pilgrimdelamare/owe-skill)
+[![macOS](https://img.shields.io/badge/macOS-000000?logo=apple&logoColor=white)](https://github.com/pilgrimdelamare/owe-skill)
+[![Linux](https://img.shields.io/badge/Linux-FCC624?logo=linux&logoColor=black)](https://github.com/pilgrimdelamare/owe-skill)
+
 > The AI coding agent knows everything. It remembers nothing. OWE fixes that.
 
 **Zero token cost · Persists across sessions · Agent-agnostic**
@@ -48,27 +55,11 @@ Before touching a single file, the agent queries a local SQLite index. If a test
 
 ```bash
 git clone https://github.com/pilgrimdelamare/owe-skill.git
-cp -r owe-skill/owe-skill ~/.claude/skills/
-rm -rf owe-skill
+cd owe-skill
+bash install.sh
 ```
 
-Add to `~/.claude/CLAUDE.md`:
-
-```
-# OWE — Once Was Enough
-
-At the start of every session, before responding:
-
-1. Check if $HOME/.owe/owe.db exists:
-   - Not found → tell the user: "[OWE] Database not found. Run: python $HOME/.claude/skills/owe-skill/scripts/census.py"
-   - Found → run python $HOME/.claude/skills/owe-skill/scripts/verify.py --status and report as [OWE] <output>
-
-2. Run python $HOME/.claude/skills/owe-skill/scripts/prefs.py --load and keep preferences in context.
-
-Before writing any code: python $HOME/.claude/skills/owe-skill/scripts/search.py keyword1 keyword2
-```
-
-OWE activates automatically in every Claude Code session, on every project.
+`install.sh` copies the skill to `~/.claude/skills/` and patches `~/.claude/CLAUDE.md` automatically. OWE activates in every Claude Code session from that point on, on every project.
 
 ### Windsurf — global
 
@@ -213,6 +204,13 @@ OWE is agent-agnostic. The same database works on Claude Code, Windsurf, or any 
 
 ## Italiano
 
+[![Python](https://img.shields.io/badge/Python-3.8+-3776AB?logo=python&logoColor=white)](https://python.org)
+[![License: MIT](https://img.shields.io/badge/License-MIT-22c55e)](LICENSE)
+[![SQLite FTS5](https://img.shields.io/badge/SQLite-FTS5-003B57?logo=sqlite&logoColor=white)](https://sqlite.org)
+[![Windows](https://img.shields.io/badge/Windows-0078D4?logo=windows&logoColor=white)](https://github.com/pilgrimdelamare/owe-skill)
+[![macOS](https://img.shields.io/badge/macOS-000000?logo=apple&logoColor=white)](https://github.com/pilgrimdelamare/owe-skill)
+[![Linux](https://img.shields.io/badge/Linux-FCC624?logo=linux&logoColor=black)](https://github.com/pilgrimdelamare/owe-skill)
+
 > L'agente AI sa tutto. Non ricorda niente. OWE risolve questo.
 
 **Zero token · Persiste tra sessioni · Funziona su qualsiasi agente**
@@ -261,27 +259,11 @@ Prima di toccare un singolo file, l'agente interroga un indice SQLite locale. Se
 
 ```bash
 git clone https://github.com/pilgrimdelamare/owe-skill.git
-cp -r owe-skill/owe-skill ~/.claude/skills/
-rm -rf owe-skill
+cd owe-skill
+bash install.sh
 ```
 
-Aggiungi in `~/.claude/CLAUDE.md`:
-
-```
-# OWE — Once Was Enough
-
-All'inizio di ogni sessione, prima di rispondere:
-
-1. Controlla se $HOME/.owe/owe.db esiste:
-   - Non esiste → di' all'utente: "[OWE] Database non trovato. Esegui: python $HOME/.claude/skills/owe-skill/scripts/census.py"
-   - Esiste → esegui python $HOME/.claude/skills/owe-skill/scripts/verify.py --status e riporta come [OWE] <output>
-
-2. Esegui python $HOME/.claude/skills/owe-skill/scripts/prefs.py --load e tieni le preferenze in context.
-
-Prima di scrivere codice: python $HOME/.claude/skills/owe-skill/scripts/search.py keyword1 keyword2
-```
-
-OWE si attiva automaticamente in ogni sessione di Claude Code, su qualsiasi progetto.
+`install.sh` copia la skill in `~/.claude/skills/` e aggiorna `~/.claude/CLAUDE.md` in automatico. OWE si attiva in ogni sessione di Claude Code da quel momento in poi, su qualsiasi progetto.
 
 ### Windsurf — globale
 
