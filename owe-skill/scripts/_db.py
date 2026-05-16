@@ -29,6 +29,8 @@ CREATE TABLE IF NOT EXISTS components (
     census_level INTEGER DEFAULT 0,
     params       TEXT    DEFAULT '[]',
     calls        TEXT    DEFAULT '[]',
+    end_line     INTEGER DEFAULT 0,
+    file_mtime   TEXT    DEFAULT '',
     UNIQUE(path, name)
 );
 
@@ -121,7 +123,12 @@ def _migrate_schema(conn):
     """Add new columns to existing DB if missing (schema evolution)."""
     existing = {row[1] for row in conn.execute("PRAGMA table_info(components)")}
     added = False
-    for col, typedef in [("params", "TEXT DEFAULT '[]'"), ("calls", "TEXT DEFAULT '[]'")]:
+    for col, typedef in [
+        ("params",     "TEXT DEFAULT '[]'"),
+        ("calls",      "TEXT DEFAULT '[]'"),
+        ("end_line",   "INTEGER DEFAULT 0"),
+        ("file_mtime", "TEXT DEFAULT ''"),
+    ]:
         if col not in existing:
             conn.execute(f"ALTER TABLE components ADD COLUMN {col} {typedef}")
             added = True

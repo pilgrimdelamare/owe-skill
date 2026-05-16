@@ -156,6 +156,7 @@ def extract_python_ts(path):
                     out.append({
                         'name':      _node_text(name_node, source_bytes),
                         'line':      node.start_point[0] + 1,
+                        'end_line':  node.end_point[0] + 1,
                         'docstring': _py_docstring(node, source_bytes),
                     })
         return out
@@ -174,27 +175,31 @@ def extract_js_ts(path):
         seen = set()
         for node in _walk(tree.root_node):
             name = line = None
+            end_line = None
             if node.type in ('function_declaration', 'generator_function_declaration'):
                 n = node.child_by_field_name('name')
                 if n:
-                    name = _node_text(n, source_bytes)
-                    line = node.start_point[0] + 1
+                    name     = _node_text(n, source_bytes)
+                    line     = node.start_point[0] + 1
+                    end_line = node.end_point[0] + 1
             elif node.type == 'variable_declarator':
                 val = node.child_by_field_name('value')
                 if val and val.type in ('arrow_function', 'function_expression',
                                         'generator_function_expression'):
                     n = node.child_by_field_name('name')
                     if n:
-                        name = _node_text(n, source_bytes)
-                        line = n.start_point[0] + 1
+                        name     = _node_text(n, source_bytes)
+                        line     = n.start_point[0] + 1
+                        end_line = val.end_point[0] + 1
             elif node.type == 'method_definition':
                 n = node.child_by_field_name('name')
                 if n:
-                    name = _node_text(n, source_bytes)
-                    line = node.start_point[0] + 1
+                    name     = _node_text(n, source_bytes)
+                    line     = node.start_point[0] + 1
+                    end_line = node.end_point[0] + 1
             if name and line and name not in ('if', 'for', 'while', 'switch') and name not in seen:
                 seen.add(name)
-                out.append({'name': name, 'line': line, 'docstring': ''})
+                out.append({'name': name, 'line': line, 'end_line': end_line or 0, 'docstring': ''})
         return out
     except Exception:
         return _extract_js_regex(path)
@@ -396,44 +401,30 @@ def census_medium(conn):
 
 
 def census_heavy(conn):
-    """Upgrade census_level 1 -> 2: cache full file content in ~/.owe/code/."""
-    import hashlib
-
-    code_dir = Path.home() / ".owe" / "code"
-    code_dir.mkdir(exist_ok=True)
-    today = str(date.today())
-
+    """Upgrade census_level 1 -> 2: store file mtime for coordinate staleness detection.
+    No file copying — coordinates (start_line, end_line) are read on demand from the original file."""
     paths = set(
         row[0] for row in conn.execute(
             "SELECT DISTINCT path FROM components WHERE census_level < 2"
         )
     )
 
-    cached = 0
+    upgraded = 0
     for fpath in paths:
         if not os.path.exists(fpath):
             continue
-        path_hash  = hashlib.sha256(fpath.encode('utf-8')).hexdigest()
-        cache_file = code_dir / f"{path_hash}.json"
-
-        if not cache_file.exists():
-            try:
-                content = Path(fpath).read_text(encoding='utf-8', errors='ignore')
-                with open(cache_file, 'w', encoding='utf-8') as f:
-                    json.dump({"path": fpath, "content": content,
-                               "hash": path_hash, "indexed_at": today},
-                              f, ensure_ascii=False)
-                cached += 1
-            except Exception:
-                pass
-
+        try:
+            mtime = str(os.path.getmtime(fpath))
+        except Exception:
+            continue
         conn.execute(
-            "UPDATE components SET census_level=2 WHERE path=? AND census_level < 2",
-            (fpath,)
+            "UPDATE components SET file_mtime=?, census_level=2 WHERE path=? AND census_level < 2",
+            (mtime, fpath)
         )
+        upgraded += conn.execute("SELECT changes()").fetchone()[0]
 
     conn.commit()
-    return cached, len(paths)
+    return upgraded, len(paths)
 
 
 # --- Regex fallbacks ---
@@ -585,9 +576,10 @@ def run_census(conn):
                     tags = auto_tags(c["name"], filename, parent)
                     conn.execute(
                         """INSERT OR IGNORE INTO components
-                           (path,name,line,docstring,filename,parent,tags,added,verified,census_level)
-                           VALUES (?,?,?,?,?,?,?,?,?,0)""",
-                        (fpath, c["name"], c["line"], c.get("docstring", "")[:120],
+                           (path,name,line,end_line,docstring,filename,parent,tags,added,verified,census_level)
+                           VALUES (?,?,?,?,?,?,?,?,?,?,0)""",
+                        (fpath, c["name"], c["line"], c.get("end_line", 0),
+                         c.get("docstring", "")[:120],
                          filename, parent, json.dumps(tags, ensure_ascii=False), today, today)
                     )
                     if conn.execute("SELECT changes()").fetchone()[0]:
@@ -677,7 +669,7 @@ def main():
     parser.add_argument("--medium",       action="store_true",
                         help="Censimento medio: aggiunge params+calls (livello 0->1)")
     parser.add_argument("--heavy",        action="store_true",
-                        help="Censimento pesante: copia file completo in ~/.owe/code/ (livello ->2)")
+                        help="Censimento pesante: salva coordinate precise + mtime per lettura on-demand (livello ->2)")
     parser.add_argument("--add",          nargs="+", metavar=("PATH", "NAME"))
     parser.add_argument("--remove",       metavar="NAME")
     parser.add_argument("--autosync-on",  action="store_true")
@@ -712,9 +704,9 @@ def main():
 
     if args.heavy:
         total = conn.execute("SELECT COUNT(DISTINCT path) FROM components WHERE census_level < 2").fetchone()[0]
-        print(f"Censimento pesante: {total} file da cachare...")
-        cached, processed = census_heavy(conn)
-        print(f"File cachati: {cached}/{processed} in ~/.owe/code/")
+        print(f"Censimento pesante: {total} file da verificare...")
+        upgraded, processed = census_heavy(conn)
+        print(f"Componenti aggiornati al livello 2: {upgraded} ({processed} file verificati)")
         return
 
     if args.add:

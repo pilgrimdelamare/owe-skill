@@ -92,8 +92,8 @@ def _scan_file_incremental(conn, fpath, autosync, today):
     for name in updated:
         c = fresh[name]
         conn.execute(
-            "UPDATE components SET line=?, docstring=? WHERE id=?",
-            (c['line'], c.get('docstring', '')[:120], existing_rows[name])
+            "UPDATE components SET line=?, end_line=?, docstring=? WHERE id=?",
+            (c['line'], c.get('end_line', 0), c.get('docstring', '')[:120], existing_rows[name])
         )
 
     # Add new components
@@ -103,9 +103,9 @@ def _scan_file_incremental(conn, fpath, autosync, today):
         if autosync:
             conn.execute(
                 """INSERT OR IGNORE INTO components
-                   (path,name,line,docstring,filename,parent,tags,added,verified,census_level)
-                   VALUES (?,?,?,?,?,?,?,?,?,0)""",
-                (fpath, name, c['line'], c.get('docstring', '')[:120],
+                   (path,name,line,end_line,docstring,filename,parent,tags,added,verified,census_level)
+                   VALUES (?,?,?,?,?,?,?,?,?,?,0)""",
+                (fpath, name, c['line'], c.get('end_line', 0), c.get('docstring', '')[:120],
                  filename, parent, json.dumps(tags, ensure_ascii=False), today, today)
             )
             log.info(f"ADD    {name} -> {fpath}:{c['line']}")

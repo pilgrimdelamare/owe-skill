@@ -19,7 +19,7 @@ def search_code(conn, keywords):
     match = " OR ".join(f'"{kw}"' for kw in keywords)
     try:
         rows = conn.execute("""
-            SELECT c.path, c.name, c.line, c.docstring,
+            SELECT c.path, c.name, c.line, c.end_line, c.docstring,
                    bm25(components_fts, 3.0, 2.0, 2.0, 2.0, 1.0) AS score
             FROM components_fts
             JOIN components c ON c.id = components_fts.rowid
@@ -79,8 +79,10 @@ def main():
         for score, c in code_results[:10]:
             doc = c.get("docstring") or ""
             doc_str = f" — {doc[:60]}" if doc else ""
+            end = c.get("end_line") or 0
+            loc = f"{c['path']}:{c['line']}-{end}" if end > c['line'] else f"{c['path']}:{c['line']}"
             print(f"  [{score:.0f}] {c['name']}{doc_str}")
-            print(f"       {c['path']}:{c['line']}")
+            print(f"       {loc}")
 
     if knowledge_results:
         print(f"\n--- CONOSCENZA ({len(knowledge_results)}) ---")
