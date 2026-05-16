@@ -71,13 +71,17 @@ Open **Settings → Cascade → Global Rules** and paste the contents of `owe-sk
 cat owe-skill/SKILL.md > /path/to/your-project/.windsurfrules
 ```
 
-### First run
+### First run — one manual step
+
+`install.sh` handles installation. The one thing it can't do automatically is scan your code — it needs to know which folders you want indexed.
+
+Run this once, manually:
 
 ```bash
 python ~/.claude/skills/owe-skill/scripts/census.py
 ```
 
-It asks which folders to scan. From that point on, OWE manages everything automatically.
+It will ask which folders to scan. After that: **you never touch it again.** The file watcher keeps the index current on every save, and the agent queries it automatically at the start of every session.
 
 ---
 
@@ -275,13 +279,17 @@ Apri **Settings → Cascade → Global Rules** e incolla il contenuto di `owe-sk
 cat owe-skill/SKILL.md > /percorso/tuo-progetto/.windsurfrules
 ```
 
-### Primo avvio
+### Primo avvio — un solo passo manuale
+
+`install.sh` gestisce l'installazione. L'unica cosa che non puo' fare in automatico e' la scansione del codice — ha bisogno di sapere quali cartelle vuoi indicizzare.
+
+Esegui questo una volta, manualmente:
 
 ```bash
 python ~/.claude/skills/owe-skill/scripts/census.py
 ```
 
-Chiede quali cartelle scansionare. Da quel momento OWE gestisce tutto in automatico.
+Chiede quali cartelle scansionare. Dopo: **non lo tocchi piu'.** Il file watcher aggiorna l'indice a ogni salvataggio, e l'agente lo interroga in automatico all'avvio di ogni sessione.
 
 ---
 
