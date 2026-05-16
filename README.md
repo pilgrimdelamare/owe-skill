@@ -30,7 +30,6 @@ The database grows over time. The more sessions it accumulates, the more efficie
 
 - **Language:** Python 3
 - **Storage:** SQLite + FTS5 (`~/.owe/owe.db`) — full-text search with BM25 ranking
-- **File cache:** `~/.owe/code/` — full file content, indexed by path hash
 - **Code parsing:** tree-sitter (auto-installed via pip on first run)
 - **File watcher:** watchdog (auto-installed via pip on first run)
 - **Compatible with:** Unix, Windows (Git Bash / WSL)
@@ -89,9 +88,9 @@ OWE analyzes code at three levels of depth:
 
 | Level | Command | What it extracts |
 |---|---|---|
-| **Light** (0) | `census.py` (default) | Function names, docstrings, auto-tags |
+| **Light** (0) | `census.py` (default) | Function names, docstrings, auto-tags, line range |
 | **Medium** (1) | `census.py --medium` | Parameters, call graph (what calls what) |
-| **Heavy** (2) | `census.py --heavy` | Full file content cached to `~/.owe/code/` |
+| **Heavy** (2) | `census.py --heavy` | File mtime snapshot — enables coordinate staleness detection |
 
 Run all three after the initial census to fully populate the database:
 
@@ -149,8 +148,6 @@ You never run search commands manually.
 ~/.owe/
 ├── owe.db              # SQLite database (components + knowledge + prefs + config)
 │                       # FTS5 indexes on components and knowledge
-├── code/               # Heavy cache: one JSON per file, named by path hash
-│   └── <sha256>.json   # { path, content, indexed_at } — never overwritten
 └── knowledge/
     └── <domain>/
         └── notes.json  # Notes per domain (redis, firebase, etc.)
@@ -160,7 +157,7 @@ You never run search commands manually.
 
 | Table | Contents |
 |---|---|
-| `components` | path, name, line, docstring, filename, parent, tags, params, calls, census_level |
+| `components` | path, name, line, end_line, file_mtime, docstring, filename, parent, tags, params, calls, census_level |
 | `components_fts` | FTS5 virtual table (content mirror of components) |
 | `knowledge` | domain, title, content, added, verified |
 | `knowledge_fts` | FTS5 virtual table (content mirror of knowledge) |
@@ -223,7 +220,6 @@ Il database cresce nel tempo. Più sessioni accumula, più l'agente diventa effi
 
 - **Linguaggio:** Python 3
 - **Storage:** SQLite + FTS5 (`~/.owe/owe.db`) — ricerca full-text con ranking BM25
-- **Cache file:** `~/.owe/code/` — contenuto completo dei file, indicizzato per hash del path
 - **Parsing codice:** tree-sitter (auto-installato via pip al primo avvio)
 - **File watcher:** watchdog (auto-installato via pip al primo avvio)
 - **Compatibile con:** Unix, Windows (Git Bash / WSL)
@@ -282,9 +278,9 @@ OWE analizza il codice a tre livelli di profondita':
 
 | Livello | Comando | Cosa estrae |
 |---|---|---|
-| **Light** (0) | `census.py` (default) | Nomi funzione, docstring, tag automatici |
+| **Light** (0) | `census.py` (default) | Nomi funzione, docstring, tag automatici, range righe |
 | **Medio** (1) | `census.py --medium` | Parametri, call graph (cosa chiama cosa) |
-| **Pesante** (2) | `census.py --heavy` | Contenuto completo del file in `~/.owe/code/` |
+| **Pesante** (2) | `census.py --heavy` | Snapshot mtime del file — abilita rilevamento staleness coordinate |
 
 Esegui tutti e tre dopo il primo censimento per popolare completamente il database:
 
@@ -342,8 +338,6 @@ Non lanci mai comandi di ricerca manualmente.
 ~/.owe/
 ├── owe.db              # Database SQLite (componenti + conoscenza + preferenze + config)
 │                       # Indici FTS5 su componenti e conoscenza
-├── code/               # Cache pesante: un JSON per file, nominato con hash del path
-│   └── <sha256>.json   # { path, content, indexed_at } — mai sovrascritto
 └── knowledge/
     └── <dominio>/
         └── notes.json  # Note per dominio (redis, firebase, ecc.)
@@ -353,7 +347,7 @@ Non lanci mai comandi di ricerca manualmente.
 
 | Tabella | Contenuto |
 |---|---|
-| `components` | path, name, line, docstring, filename, parent, tags, params, calls, census_level |
+| `components` | path, name, line, end_line, file_mtime, docstring, filename, parent, tags, params, calls, census_level |
 | `components_fts` | Tabella virtuale FTS5 (mirror di components) |
 | `knowledge` | domain, title, content, added, verified |
 | `knowledge_fts` | Tabella virtuale FTS5 (mirror di knowledge) |
