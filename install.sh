@@ -35,7 +35,6 @@ OWEEOF
 fi
 
 echo ""
-echo "[OWE] Installation complete."
+echo "[OWE] Installation complete. Starting initial census..."
 echo ""
-echo "Next step — run the initial census:"
-echo "  python $SCRIPTS_DIR/census.py"
+python "$SCRIPTS_DIR/census.py"
