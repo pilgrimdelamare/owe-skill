@@ -1,3 +1,7 @@
+<div align="center">
+
+<img src="assets/owe.png" alt="OWE" width="180" />
+
 # OWE — Once Was Enough
 
 [![Python](https://img.shields.io/badge/Python-3.8+-3776AB?logo=python&logoColor=white)](https://python.org)
@@ -7,9 +11,11 @@
 [![macOS](https://img.shields.io/badge/macOS-000000?logo=apple&logoColor=white)](https://github.com/pilgrimdelamare/owe-skill)
 [![Linux](https://img.shields.io/badge/Linux-FCC624?logo=linux&logoColor=black)](https://github.com/pilgrimdelamare/owe-skill)
 
-> The AI coding agent knows everything. It remembers nothing. OWE fixes that.
+### The AI coding agent knows everything. It remembers nothing. OWE fixes that.
 
 **Zero token cost · Persists across sessions · Agent-agnostic**
+
+</div>
 
 ---
 
@@ -196,6 +202,12 @@ OWE is agent-agnostic. The same database works on Claude Code, Windsurf, or any 
 
 ## Italiano
 
+<div align="center">
+
+<img src="assets/owe.png" alt="OWE" width="180" />
+
+# OWE — Once Was Enough
+
 [![Python](https://img.shields.io/badge/Python-3.8+-3776AB?logo=python&logoColor=white)](https://python.org)
 [![License: MIT](https://img.shields.io/badge/License-MIT-22c55e)](LICENSE)
 [![SQLite FTS5](https://img.shields.io/badge/SQLite-FTS5-003B57?logo=sqlite&logoColor=white)](https://sqlite.org)
@@ -203,9 +215,11 @@ OWE is agent-agnostic. The same database works on Claude Code, Windsurf, or any 
 [![macOS](https://img.shields.io/badge/macOS-000000?logo=apple&logoColor=white)](https://github.com/pilgrimdelamare/owe-skill)
 [![Linux](https://img.shields.io/badge/Linux-FCC624?logo=linux&logoColor=black)](https://github.com/pilgrimdelamare/owe-skill)
 
-> L'agente AI sa tutto. Non ricorda niente. OWE risolve questo.
+### L'agente AI sa tutto. Non ricorda niente. OWE risolve questo.
 
 **Zero token · Persiste tra sessioni · Funziona su qualsiasi agente**
+
+</div>
 
 ---
 
